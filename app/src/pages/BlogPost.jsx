@@ -2,7 +2,14 @@ import { Link, useParams, Navigate } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import SEO from '../components/SEO'
-import PostCard, { fmtDate } from '../components/PostCard'
+import StoryRow from '../components/StoryRow'
+import ClapButton from '../components/ClapButton'
+import BookmarkButton from '../components/BookmarkButton'
+import ShareBar from '../components/ShareBar'
+import ReadingProgress from '../components/ReadingProgress'
+import Comments from '../components/Comments'
+import { fmtDate } from '../components/PostCard'
+import { SITE } from '../lib/site'
 import { getPost, getRelatedPosts, slugify } from '../lib/content'
 
 export default function BlogPost() {
@@ -12,54 +19,89 @@ export default function BlogPost() {
   if (!post) return <Navigate to="/404" replace />
 
   const related = getRelatedPosts(post, 3)
+  const path = `/blog/${post.slug}`
+  const key = `blog/${post.slug}`
 
   return (
     <>
       <SEO
         title={post.title}
         description={post.description}
-        path={`/blog/${post.slug}`}
+        path={path}
         type="article"
         date={post.date?.toISOString()}
         keywords={[...post.topics, ...post.keywords]}
       />
-      <article className="section article" style={{ borderTop: 'none' }}>
-        <p className="mono section-tag">
-          <Link to="/blog">← Blog</Link>
-        </p>
-        <h1 className="article-title">{post.title}</h1>
-        <p className="mono meta-line">
-          {fmtDate(post.date)}
-          {post.updated && <> · updated {fmtDate(post.updated)}</>}
-        </p>
-        {post.topics.length > 0 && (
-          <div className="topic-cloud">
-            {post.topics.map((t) => (
-              <Link key={t} to={`/topics/${slugify(t)}`} className="topic-chip">
-                {t}
-              </Link>
-            ))}
+      <ReadingProgress />
+      <article className="medium-article">
+        <header className="article-head">
+          {post.topics.length > 0 && (
+            <div className="topic-cloud article-topics">
+              {post.topics.map((t) => (
+                <Link key={t} to={`/topics/${slugify(t)}`} className="topic-chip">
+                  {t}
+                </Link>
+              ))}
+            </div>
+          )}
+          <h1 className="article-title">{post.title}</h1>
+          {post.description && <p className="article-dek">{post.description}</p>}
+
+          <div className="byline">
+            <div className="byline-avatar" aria-hidden>
+              IG
+            </div>
+            <div className="byline-meta">
+              <div className="byline-row">
+                <strong>{SITE.author}</strong>
+                <Link className="byline-follow" to="/contact">
+                  Follow
+                </Link>
+              </div>
+              <p className="mono byline-sub">
+                {fmtDate(post.date)}
+                {post.updated && <> · updated {fmtDate(post.updated)}</>} · {post.readingMinutes} min read
+              </p>
+            </div>
+            <div className="byline-actions">
+              <ClapButton slug={key} />
+              <BookmarkButton slug={key} />
+              <ShareBar url={SITE.url + path} title={post.title} />
+            </div>
           </div>
-        )}
-        <div className="prose">
+        </header>
+
+        <div className="prose article-body">
           <ReactMarkdown remarkPlugins={[remarkGfm]}>{post.body}</ReactMarkdown>
         </div>
-        {post.keywords.length > 0 && (
-          <p className="mono keywords">
-            Keywords: {post.keywords.map((k) => (
-              <Link key={k} to={`/topics?q=${encodeURIComponent(k)}`}>{k}</Link>
-            ))}
-          </p>
-        )}
+
+        <footer className="article-foot">
+          {post.keywords.length > 0 && (
+            <p className="mono keywords">
+              Written about{' '}
+              {post.keywords.map((k) => (
+                <Link key={k} to={`/topics?q=${encodeURIComponent(k)}`}>
+                  {k}
+                </Link>
+              ))}
+            </p>
+          )}
+          <div className="byline-actions article-foot-actions">
+            <ClapButton slug={key} />
+            <BookmarkButton slug={key} />
+            <ShareBar url={SITE.url + path} title={post.title} />
+          </div>
+        </footer>
       </article>
 
+      <Comments />
+
       {related.length > 0 && (
-        <section className="section reveal">
-          <p className="mono section-tag">Related</p>
-          <h2>Keep reading</h2>
-          <div className="grid2">
+        <section className="section related reveal">
+          <p className="mono section-tag">More from {SITE.author}</p>
+          <div className="feed-related">
             {related.map((p) => (
-              <PostCard key={p.slug} post={p} />
+              <StoryRow key={p.slug} post={p} />
             ))}
           </div>
         </section>

@@ -1,6 +1,9 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: knight-dev01/The-POET
   branch: main
+  base_url: https://portfolio-xi-seven-8aw4xk7yfe.vercel.app
+  auth_endpoint: api/auth
   commit_messages:
     create: 'content: create {{collection}} "{{slug}}"'
     update: 'content: update {{collection}} "{{slug}}"'

@@ -9,12 +9,13 @@ export default function Layout({ children }) {
           IG<span>.</span>
         </Link>
         <nav>
+          <NavLink to="/blog">Stories</NavLink>
           <NavLink to="/projects">Work</NavLink>
-          <NavLink to="/blog">Blog</NavLink>
           <NavLink to="/topics">Topics</NavLink>
+          <NavLink to="/library">Library</NavLink>
           <NavLink to="/cv">CV</NavLink>
           <NavLink to="/about">About</NavLink>
-          <NavLink to="/contact">Contact</NavLink>
+          <a href="/admin" className="nav-write">Write</a>
         </nav>
         <ThemeToggle />
       </header>

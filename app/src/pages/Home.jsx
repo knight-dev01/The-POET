@@ -1,85 +1,80 @@
 import { Link } from 'react-router-dom'
 import SEO from '../components/SEO'
-import PostCard from '../components/PostCard'
+import StoryRow from '../components/StoryRow'
 import { SITE } from '../lib/site'
-import { getFeaturedPosts, getProjects, getAllTopics } from '../lib/content'
+import { getPosts, getProjects, getAllTopics } from '../lib/content'
 
 export default function Home() {
-  const featured = getFeaturedPosts(3)
-  const projects = getProjects().slice(0, 4)
-  const topics = getAllTopics().slice(0, 8)
+  const posts = getPosts()
+  const projects = getProjects().slice(0, 3)
+  const topics = getAllTopics().slice(0, 10)
 
   return (
     <>
       <SEO title="" description={SITE.description} path="/" />
-      <section className="hero">
-        <p className="mono eyebrow">● Available for work</p>
-        <h1>
-          {SITE.name}
-          <br />
-          <span>AI-Native Backend Engineer & Writer</span>
-        </h1>
-        <p className="lede">{SITE.tagline}</p>
-        <div className="cta-row">
-          <Link className="btn primary" to="/projects">
-            View work
-          </Link>
-          <Link className="btn" to="/blog">
-            Read the blog
-          </Link>
-          <Link className="btn" to="/contact">
-            Get in touch
-          </Link>
-        </div>
-      </section>
-
-      <section className="section reveal">
-        <p className="mono section-tag">01 — Writing</p>
-        <h2>Latest from the blog</h2>
-        <div className="grid2">
-          {featured.map((p) => (
-            <PostCard key={p.slug} post={p} />
-          ))}
-        </div>
-        <p className="more-link">
-          <Link to="/blog">All posts →</Link>
-        </p>
-      </section>
-
-      <section className="section reveal">
-        <p className="mono section-tag">02 — Work</p>
-        <h2>Selected projects</h2>
-        <div className="grid2">
-          {projects.map((p) => (
-            <article key={p.slug} className="card work">
-              <p className="mono">{p.stack?.slice(0, 3).join(' · ')}</p>
-              <h3>
-                <Link to={`/projects/${p.slug}`}>{p.title}</Link>
-              </h3>
-              <p>{p.description}</p>
-            </article>
-          ))}
-        </div>
-        <p className="more-link">
-          <Link to="/projects">All projects →</Link>
-        </p>
-      </section>
-
-      <section className="section reveal">
-        <p className="mono section-tag">03 — Knowledge hub</p>
-        <h2>Concepts I write about</h2>
-        <p className="sub">A growing reference of topics, tools and ideas — each links to everything I've written on it.</p>
-        <div className="topic-cloud">
-          {topics.map((t) => (
-            <Link key={t.slug} to={`/topics/${t.slug}`} className="topic-chip">
-              {t.label} <span className="mono">{t.count}</span>
+      <div className="medium-feed">
+        <aside className="feed-rail">
+          <div className="feed-rail-inner">
+            <p className="mono section-tag">The POET</p>
+            <h1 className="feed-title">Philosophy of Emerging Technology</h1>
+            <p className="feed-desc">{SITE.tagline}</p>
+            <Link className="btn primary" to="/cv">
+              View CV
             </Link>
+            <nav className="feed-nav">
+              <p className="mono feed-nav-label">Browse</p>
+              <Link to="/blog">Latest stories</Link>
+              <Link to="/projects">Projects</Link>
+              <Link to="/topics">Topics</Link>
+              <Link to="/library">Your library</Link>
+              <Link to="/about">About</Link>
+              <Link to="/contact">Contact</Link>
+            </nav>
+            <div className="feed-topics">
+              <p className="mono feed-nav-label">Featured topics</p>
+              {topics.map((t) => (
+                <Link key={t.slug} to={`/topics/${t.slug}`}>
+                  {t.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </aside>
+
+        <div className="feed-main">
+          <header className="feed-tabs">
+            <span className="feed-tab active">For you</span>
+            <Link className="feed-tab" to="/blog">
+              Latest
+            </Link>
+          </header>
+
+          {posts.length === 0 && (
+            <p className="sub">No stories yet. Add markdown files to `app/content/blog/`.</p>
+          )}
+          {posts.map((p) => (
+            <StoryRow key={p.slug} post={p} />
           ))}
+
+          <section className="feed-projects">
+            <p className="mono section-tag">Selected work</p>
+            <div className="feed-project-grid">
+              {projects.map((p) => (
+                <article key={p.slug} className="card work">
+                  <p className="mono">{p.stack?.slice(0, 3).join(' · ')}</p>
+                  <h3>
+                    <Link to={`/projects/${p.slug}`}>{p.title}</Link>
+                  </h3>
+                  <p>{p.description}</p>
+                </article>
+              ))}
+            </div>
+            <p className="more-link">
+              <Link to="/projects">All projects →</Link>
+            </p>
+          </section>
         </div>
-        <p className="more-link">
-          <Link to="/topics">All topics →</Link>
-        </p>
-      </section>
+      </div>
     </>
   )
 }

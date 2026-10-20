@@ -11,6 +11,7 @@ const Topics = lazy(() => import('./pages/Topics'))
 const TopicPage = lazy(() => import('./pages/TopicPage'))
 const About = lazy(() => import('./pages/About'))
 const CV = lazy(() => import('./pages/CV'))
+const Library = lazy(() => import('./pages/Library'))
 const Contact = lazy(() => import('./pages/Contact'))
 const Sitemap = lazy(() => import('./pages/Sitemap'))
 const NotFound = lazy(() => import('./pages/NotFound'))
@@ -60,6 +61,7 @@ export default function App() {
           <Route path="/topics/:slug" element={<TopicPage />} />
           <Route path="/about" element={<About />} />
           <Route path="/cv" element={<CV />} />
+          <Route path="/library" element={<Library />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/sitemap" element={<Sitemap />} />
           <Route path="*" element={<NotFound />} />

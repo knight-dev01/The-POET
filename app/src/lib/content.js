@@ -80,6 +80,11 @@ const modules = import.meta.glob('/content/**/*.md', {
   eager: true,
 })
 
+function readingTimeOf(text) {
+  const words = String(text).trim().split(/\s+/).filter(Boolean).length
+  return Math.max(1, Math.round(words / 200))
+}
+
 function parseAll() {
   const items = []
   for (const [path, raw] of Object.entries(modules)) {
@@ -105,6 +110,8 @@ function parseAll() {
       stack: Array.isArray(data.stack) ? data.stack : [],
       live: data.live || null,
       repo: data.repo || null,
+      cover: data.cover || null,
+      readingMinutes: readingTimeOf(content),
     })
   }
   return items
