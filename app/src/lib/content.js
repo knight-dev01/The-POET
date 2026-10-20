@@ -1,4 +1,78 @@
-import matter from 'gray-matter'
+function unquote(s) {
+  const t = s.trim()
+  if ((t.startsWith('"') && t.endsWith('"')) || (t.startsWith("'") && t.endsWith("'"))) {
+    return t.slice(1, -1)
+  }
+  return t
+}
+
+function coerce(v) {
+  if (v === 'true') return true
+  if (v === 'false') return false
+  if (v.startsWith('[') && v.endsWith(']')) {
+    return v
+      .slice(1, -1)
+      .split(',')
+      .map((s) => unquote(s))
+      .filter(Boolean)
+  }
+  return unquote(v)
+}
+
+// Small YAML-subset frontmatter parser (strings, booleans, inline + block lists).
+// Replaces gray-matter, which is Node-only and crashes browser bundles (Buffer).
+export function parseFrontmatter(raw) {
+  const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/)
+  if (!m) return { data: {}, content: raw }
+
+  const data = {}
+  const lines = m[1].split(/\r?\n/)
+  let i = 0
+
+  while (i < lines.length) {
+    const kv = lines[i].match(/^([A-Za-z_][\w-]*):\s*(.*)$/)
+    if (!kv) {
+      i++
+      continue
+    }
+    const key = kv[1]
+    let val = kv[2].trim()
+
+    if (val === '' || val === '>' || val === '>-' || val === '|' || val === '|-') {
+      const isBlock = val === '' || val === '>' || val === '>' || val === '|' || val === '|-' || val === '>-'
+      const items = []
+      const text = []
+      i++
+      while (i < lines.length) {
+        const item = lines[i].match(/^\s+-\s+(.*)$/)
+        if (item) {
+          items.push(unquote(item[1]))
+          i++
+          continue
+        }
+        const cont = lines[i].match(/^\s+(.*)$/)
+        if (cont && cont[1].trim() !== '') {
+          text.push(cont[1])
+          i++
+          continue
+        }
+        if (lines[i].trim() === '') {
+          i++
+          continue
+        }
+        break
+      }
+      if (items.length) data[key] = items
+      else if (text.length) data[key] = text.join(val === '|' || val === '|-' ? '\n' : ' ')
+      continue
+    }
+
+    data[key] = coerce(val)
+    i++
+  }
+
+  return { data, content: raw.slice(m[0].length) }
+}
 
 const modules = import.meta.glob('/content/**/*.md', {
   query: '?raw',
@@ -9,7 +83,7 @@ const modules = import.meta.glob('/content/**/*.md', {
 function parseAll() {
   const items = []
   for (const [path, raw] of Object.entries(modules)) {
-    const { data, content } = matter(raw)
+    const { data, content } = parseFrontmatter(raw)
     const parts = path.split('/')
     const kind = parts[parts.length - 2] // 'blog' | 'projects'
     const slug = parts[parts.length - 1].replace(/\.md$/, '')

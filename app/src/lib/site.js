@@ -3,7 +3,7 @@ export const SITE = {
   title: 'Ifet Great — AI-Native Backend Engineer',
   description:
     'Ifet (Titus) Great — AI-Native Backend Engineer. First Class CS graduate, Backend AI Engineering Intern at FlyRank AI. Production REST APIs, FastAPI, Django, Python and AI systems. Projects, articles and a public knowledge hub.',
-  url: import.meta.env.VITE_SITE_URL || 'https://knight-dev01.github.io/The-POET',
+  url: import.meta.env.VITE_SITE_URL || 'https://portfolio-xi-seven-8aw4xk7yfe.vercel.app',
   author: 'Ifet Great',
   email: 'greatifet12@gmail.com',
   phone: '+234 904 722 6729',

@@ -8,8 +8,8 @@ backend:
     uploadMedia: 'media: add "{{path}}"'
     deleteMedia: 'media: remove "{{path}}"'
 
-site_url: https://knight-dev01.github.io/The-POET
-display_url: https://knight-dev01.github.io/The-POET
+site_url: https://portfolio-xi-seven-8aw4xk7yfe.vercel.app
+display_url: https://portfolio-xi-seven-8aw4xk7yfe.vercel.app
 logo_url: ''
 
 media_folder: "app/public/uploads"

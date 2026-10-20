@@ -7,7 +7,7 @@ const ROOT = join(__dirname, '..')
 const CONTENT = join(ROOT, 'content')
 const DIST = join(ROOT, 'dist')
 
-const SITE_URL = (process.env.VITE_SITE_URL || 'https://knight-dev01.github.io/The-POET').replace(/\/$/, '')
+const SITE_URL = (process.env.VITE_SITE_URL || 'https://portfolio-xi-seven-8aw4xk7yfe.vercel.app').replace(/\/$/, '')
 const SITE_NAME = 'Ifet Great'
 
 function parseFrontmatter(raw) {
