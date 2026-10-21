@@ -14,6 +14,7 @@ const CV = lazy(() => import('./pages/CV'))
 const Library = lazy(() => import('./pages/Library'))
 const Contact = lazy(() => import('./pages/Contact'))
 const Sitemap = lazy(() => import('./pages/Sitemap'))
+const Admin = lazy(() => import('./pages/Admin'))
 const NotFound = lazy(() => import('./pages/NotFound'))
 
 export default function App() {
@@ -36,13 +37,10 @@ export default function App() {
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((e) => {
-          if (e.isIntersecting) {
-            e.target.classList.add('visible')
-            io.unobserve(e.target)
-          }
+          e.target.classList.toggle('visible', e.isIntersecting)
         })
       },
-      { threshold: 0.1 }
+      { threshold: 0.12, rootMargin: '0px 0px -40px 0px' }
     )
     document.querySelectorAll('.reveal').forEach((el) => io.observe(el))
     return () => io.disconnect()
@@ -63,6 +61,7 @@ export default function App() {
           <Route path="/cv" element={<CV />} />
           <Route path="/library" element={<Library />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="/sitemap" element={<Sitemap />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

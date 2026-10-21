@@ -89,6 +89,8 @@ ${urls
 
 const robots = `User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /api
 
 Sitemap: ${SITE_URL}/sitemap.xml
 `

@@ -15,7 +15,7 @@ export default function ShareBar({ url, title }) {
   return (
     <div className="share-bar">
       <button className="icon-btn" title="Copy link" onClick={copy}>
-        {copied ? '✓ Copied' : '🔗 Copy link'}
+        {copied ? 'Copied' : 'Copy link'}
       </button>
       <a
         className="icon-btn"

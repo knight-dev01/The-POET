@@ -16,7 +16,7 @@ export default function Library() {
         <h2>Your reading list</h2>
         {posts.length === 0 ? (
           <>
-            <p className="sub">Nothing saved yet. Tap ☆ on any story to keep it here.</p>
+            <p className="sub">Nothing saved yet. Tap the star on any story to keep it here.</p>
             <div className="cta-row">
               <Link className="btn primary" to="/">
                 Browse stories

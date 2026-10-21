@@ -45,7 +45,17 @@ export default function BlogPost() {
             </div>
           )}
           <h1 className="article-title">{post.title}</h1>
-          {post.description && <p className="article-dek">{post.description}</p>}
+
+          <p className="paper-meta">
+            THE POET WORKING PAPER · {post.topics[0] || 'General'} · {post.readingMinutes} PP.
+          </p>
+
+          {post.description && (
+            <div className="paper-abstract">
+              <span className="abs-label">Abstract</span>
+              <p>{post.description}</p>
+            </div>
+          )}
 
           <div className="byline">
             <div className="byline-avatar" aria-hidden>

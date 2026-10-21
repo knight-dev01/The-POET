@@ -27,9 +27,9 @@ export default function About() {
           </p>
         </div>
         <ul className="checklist mono">
-          <li>✓ Software development</li>
-          <li>✓ Technical writing</li>
-          <li>✓ Open source</li>
+          <li>Software development</li>
+          <li>Technical writing</li>
+          <li>Open source</li>
         </ul>
       </section>
     </>
