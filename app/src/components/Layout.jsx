@@ -1,16 +1,32 @@
 import { NavLink, Link } from 'react-router-dom'
 import { SITE } from '../lib/site'
 
+function Ornament() {
+  return (
+    <svg className="footer-ornament" viewBox="0 0 240 24" fill="none" aria-hidden>
+      <path d="M0 12 H95" stroke="currentColor" strokeWidth="1" opacity="0.5" />
+      <path d="M145 12 H240" stroke="currentColor" strokeWidth="1" opacity="0.5" />
+      <path
+        d="M120 12 C118 8 114 6 110 8 C106 10 108 14 112 13 C116 12 118 10 120 12 Z"
+        fill="currentColor"
+        opacity="0.7"
+      />
+      <path
+        d="M120 12 C122 8 126 6 130 8 C134 10 132 14 128 13 C124 12 122 10 120 12 Z"
+        fill="currentColor"
+        opacity="0.7"
+      />
+      <circle cx="120" cy="12" r="2" fill="currentColor" />
+    </svg>
+  )
+}
+
 export default function Layout({ children }) {
   const year = new Date().getFullYear()
   return (
     <>
-      <div className="corner-marks" aria-hidden>
-        <span className="tl" />
-        <span className="tr" />
-        <span className="bl" />
-        <span className="br" />
-      </div>
+      <img src="/sprig.svg" className="sprig tr" alt="" aria-hidden />
+      <img src="/sprig.svg" className="sprig bl" alt="" aria-hidden />
       <header className="nav">
         <Link to="/" className="logo">
           IG<span>.</span>
@@ -27,44 +43,21 @@ export default function Layout({ children }) {
       </header>
       <main>{children}</main>
       <footer className="site-footer">
-        <div className="footer-meta mono">
-          <div className="footer-links">
-            <a href={SITE.github} target="_blank" rel="noreferrer">
-              GitHub
+        <Ornament />
+        <div className="footer-links">
+          <a href={SITE.github} target="_blank" rel="noreferrer">
+            GitHub
+          </a>
+          {SITE.linkedin && (
+            <a href={SITE.linkedin} target="_blank" rel="noreferrer">
+              LinkedIn
             </a>
-            {SITE.linkedin && (
-              <a href={SITE.linkedin} target="_blank" rel="noreferrer">
-                LinkedIn
-              </a>
-            )}
-            <a href={`mailto:${SITE.email}`}>Email</a>
-            <Link to="/sitemap">Sitemap</Link>
-          </div>
-          <div>
-            © {year} {SITE.author}. All rights reserved.
-          </div>
+          )}
+          <a href={`mailto:${SITE.email}`}>Email</a>
+          <Link to="/sitemap">Sitemap</Link>
         </div>
-        <div className="title-block">
-          <div className="tb-cell">
-            <span className="tb-label">Project</span>
-            <span className="tb-value">{SITE.brand}</span>
-          </div>
-          <div className="tb-cell">
-            <span className="tb-label">Title</span>
-            <span className="tb-value">{SITE.brandMeaning}</span>
-          </div>
-          <div className="tb-cell">
-            <span className="tb-label">Drawn by</span>
-            <span className="tb-value">{SITE.author}</span>
-          </div>
-          <div className="tb-cell">
-            <span className="tb-label">Scale</span>
-            <span className="tb-value">1:1</span>
-          </div>
-          <div className="tb-cell">
-            <span className="tb-label">Sheet</span>
-            <span className="tb-value">A-{String(year).slice(-2)}</span>
-          </div>
+        <div className="footer-copy">
+          © {year} {SITE.author} · {SITE.brand} — {SITE.brandMeaning}
         </div>
       </footer>
     </>

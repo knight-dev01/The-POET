@@ -19,7 +19,7 @@ export default function NewsTicker() {
 
   useEffect(() => {
     if (items.length < 2) return
-    const t = setInterval(() => setIdx((i) => (i + 1) % items.length), 5000)
+    const t = setInterval(() => setIdx((i) => (i + 1) % items.length), 6000)
     return () => clearInterval(t)
   }, [items.length])
 
@@ -28,8 +28,8 @@ export default function NewsTicker() {
   const cur = items[idx % items.length]
 
   return (
-    <div className="news-ticker reveal" aria-label="Live news">
-      <span className="label">Live wire</span>
+    <div className="news-ticker reveal" aria-label="Current dispatches">
+      <span className="label">Dispatches</span>
       <div className="track">
         <span className="item" key={idx}>
           <a href={cur.url} target="_blank" rel="noreferrer">
