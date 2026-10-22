@@ -18,7 +18,7 @@ export default function Comments() {
     script.setAttribute('data-reactions-enabled', '1')
     script.setAttribute('data-emit-metadata', '0')
     script.setAttribute('data-input-position', 'top')
-    script.setAttribute('data-theme', 'preferred_color_scheme')
+    script.setAttribute('data-theme', 'dark')
     script.setAttribute('data-lang', 'en')
     ref.current.appendChild(script)
     return () => ref.current?.querySelector('script')?.remove()

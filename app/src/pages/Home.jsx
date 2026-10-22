@@ -44,12 +44,15 @@ export default function Home() {
 
         <div className="feed-main">
           <section className="profile-sheet reveal">
-            <div className="portrait">
-              <div className="portrait-inner">
-                <span className="leaf-bg" aria-hidden />
-                <span className="mono-ig">IG</span>
+            <figure className="portrait-fig">
+              <div className="portrait">
+                <div className="portrait-inner">
+                  <span className="leaf-bg" aria-hidden />
+                  <span className="mono-ig">IG</span>
+                </div>
               </div>
-            </div>
+              <figcaption className="portrait-cap mono">Fig. 1 — Author, Lagos</figcaption>
+            </figure>
             <div className="profile-info">
               <p className="eyebrow">Naturalist of emerging systems</p>
               <h1>{SITE.author}</h1>
@@ -104,12 +107,15 @@ export default function Home() {
           ))}
 
           <section className="feed-projects">
-            <p className="section-tag">Selected work</p>
+            <p className="section-tag">Fig. 2 — Selected work</p>
             <div className="feed-project-grid">
-              {projects.map((p) => (
+              {projects.map((p, i) => (
                 <article key={p.slug} className="card work">
                   <p className="meta-line">{p.stack?.slice(0, 3).join(' · ')}</p>
                   <h3>
+                    <span className="card-index" aria-hidden>
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
                     <Link to={`/projects/${p.slug}`}>{p.title}</Link>
                   </h3>
                   <p>{p.description}</p>
