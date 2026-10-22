@@ -1,22 +1,22 @@
 :root{
-  --bg:#f4f0e6; --bg2:#eae3d0; --card:#fcfaf3;
-  --text:#221f1a; --muted:#524b43; --line:#b3a58c;
-  --accent:#35602c;
-  --gold:#7a5f24;
-  --ink:#221f1a;
-  --paper:#f4f0e6;
-  --display:'Playfair Display',Georgia,'Times New Roman',serif;
-  --sans:'General Sans',Inter,system-ui,sans-serif;
-  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
-  --serif:'Spectral',Georgia,'Times New Roman',serif;
-}
-html[data-theme="dark"]{
   --bg:#16150f; --bg2:#1c1a13; --card:#221f17;
   --text:#f2ecdc; --muted:#c4b99e; --line:#524a38;
   --accent:#97c77f;
   --gold:#d9b45c;
   --ink:#16150f;
   --paper:#16150f;
+  --display:'Playfair Display',Georgia,'Times New Roman',serif;
+  --sans:'General Sans',Inter,system-ui,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  --serif:'Spectral',Georgia,'Times New Roman',serif;
+}
+html[data-theme="light"]{
+  --bg:#f4f0e6; --bg2:#eae3d0; --card:#fcfaf3;
+  --text:#221f1a; --muted:#524b43; --line:#b3a58c;
+  --accent:#35602c;
+  --gold:#7a5f24;
+  --ink:#221f1a;
+  --paper:#f4f0e6;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -36,10 +36,10 @@ body::before{
   background-size:400px 400px;
   pointer-events:none;
   z-index:0;
-  opacity:.28;
-  mix-blend-mode:multiply;
+  opacity:.16;
+  mix-blend-mode:overlay;
 }
-html[data-theme="dark"] body::before{mix-blend-mode:overlay;opacity:.16}
+html[data-theme="light"] body::before{mix-blend-mode:multiply;opacity:.28}
 .nav,main,.site-footer{position:relative;z-index:1}
 
 .mono{font-family:var(--mono);font-size:.8rem;letter-spacing:.02em}
@@ -176,9 +176,9 @@ h1,h2,h3{font-family:var(--display);letter-spacing:-.01em;line-height:1.15}
 .btn.primary{
   background:var(--accent);
   border-color:var(--accent);
-  color:#f8f5ec;
+  color:#16150f;
 }
-html[data-theme="dark"] .btn.primary{color:#16150f}
+html[data-theme="light"] .btn.primary{color:#f8f5ec}
 .btn.primary:hover{filter:brightness(1.06)}
 
 /* ---------- SECTIONS ---------- */
@@ -525,8 +525,8 @@ html[data-theme="dark"] .btn.primary{color:#16150f}
 }
 .ledger-form input:focus,.ledger-form textarea:focus{border-color:var(--accent)}
 .form-msg{font-family:var(--mono);font-size:.82rem;color:var(--accent);margin-top:.5rem}
-.form-msg.err{color:#8f3a2c}
-html[data-theme="dark"] .form-msg.err{color:#e08a78}
+.form-msg.err{color:#e08a78}
+html[data-theme="light"] .form-msg.err{color:#8f3a2c}
 
 /* ---------- ADMIN ---------- */
 .admin-panel{max-width:860px;margin:2rem auto;padding:0 1.5rem}

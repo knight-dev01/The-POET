@@ -72,15 +72,9 @@ function ThemeToggle() {
       onClick={() => {
         const root = document.documentElement
         const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'
-        if (next === 'light') {
-          root.classList.add('mode-light')
-          root.removeAttribute('data-theme')
-        } else {
-          root.classList.remove('mode-light')
-          root.setAttribute('data-theme', 'dark')
-        }
+        root.setAttribute('data-theme', next)
         try {
-          localStorage.setItem('theme-pref', next)
+          localStorage.setItem('poet:theme', next)
         } catch {}
       }}
     >
