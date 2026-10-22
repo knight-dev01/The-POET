@@ -26,8 +26,10 @@ body::before{
   content:"";
   position:fixed;
   inset:0;
-  background:url('/paper.svg') repeat;
-  background-size:400px 400px;
+  background:
+    url('/paper.svg') repeat,
+    url('/grid.svg') repeat;
+  background-size:400px 400px, 200px 200px;
   pointer-events:none;
   z-index:0;
   opacity:.5;
