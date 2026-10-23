@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/((?!api|assets|uploads|sitemap\\.xml|robots\\.txt|rss\\.xml|favicon\\.svg|favicon\\.png|og\\.png|paper\\.svg|grid\\.svg|bg\\.svg).*)", "destination": "/index.html" }
+    { "source": "/((?!api|assets|uploads|sitemap\\.xml|robots\\.txt|rss\\.xml|favicon\\.svg|favicon\\.png|og\\.png|wrinkle\\.webp|bg\\.svg).*)", "destination": "/index.html" }
   ],
   "headers": [
     {
@@ -8,8 +8,12 @@
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     },
     {
-      "source": "/(paper|sprig|ornament|grid|favicon)\\.(svg|png)",
+      "source": "/(sprig|ornament|favicon)\\.(svg|png)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }]
+    },
+    {
+      "source": "/wrinkle.webp",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800, stale-while-revalidate=2592000" }]
     },
     {
       "source": "/og.png",
