@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import SEO from '../components/SEO'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 const API = '/api/admin'
 
@@ -46,8 +48,116 @@ export default function Admin() {
   const [msg, setMsg] = useState(null)
   const [busy, setBusy] = useState(false)
   const [collection, setCollection] = useState('blog')
+  const taRef = useRef(null)
+  const [mode, setMode] = useState('split')
 
   const headers = { Authorization: `Bearer ${session}` }
+
+  function focusTa(start, end) {
+    requestAnimationFrame(() => {
+      const ta = taRef.current
+      if (!ta) return
+      ta.focus()
+      ta.setSelectionRange(start, end)
+    })
+  }
+
+  function wrapSel(before, after, placeholder) {
+    const ta = taRef.current
+    if (!ta) return
+    const { selectionStart: s, selectionEnd: e, value } = ta
+    const sel = value.slice(s, e) || placeholder
+    setRaw(value.slice(0, s) + before + sel + after + value.slice(e))
+    focusTa(s + before.length, s + before.length + sel.length)
+  }
+
+  function prefixLine(token) {
+    const ta = taRef.current
+    if (!ta) return
+    const { selectionStart: s, selectionEnd: e, value } = ta
+    const start = value.lastIndexOf('\n', s - 1) + 1
+    let end = value.indexOf('\n', e)
+    if (end === -1) end = value.length
+    const block = value.slice(start, end)
+    const lines = block.split('\n')
+    const allPrefixed = lines.every((l) => !l.trim() || l.startsWith(token))
+    const nextBlock = lines
+      .map((l) => (!l.trim() ? l : allPrefixed ? l.slice(token.length) : token + l))
+      .join('\n')
+    setRaw(value.slice(0, start) + nextBlock + value.slice(end))
+    focusTa(s, e + (nextBlock.length - block.length))
+  }
+
+  function insertBlock(text, cursorOffset = text.length) {
+    const ta = taRef.current
+    if (!ta) return
+    const { selectionStart: s, value } = ta
+    const head = value.slice(0, s)
+    const lead = s === 0 || head.endsWith('\n\n') ? '' : head.endsWith('\n') ? '\n' : '\n\n'
+    setRaw(head + lead + text + '\n\n' + value.slice(s))
+    const c = s + lead.length + cursorOffset
+    focusTa(c, c)
+  }
+
+  function onEditorKeyDown(e) {
+    if (e.key === 'Tab') {
+      e.preventDefault()
+      const ta = taRef.current
+      if (!ta) return
+      const { selectionStart: s, selectionEnd: end, value } = ta
+      setRaw(value.slice(0, s) + '  ' + value.slice(end))
+      focusTa(s + 2, s + 2)
+      return
+    }
+    if (!(e.ctrlKey || e.metaKey)) return
+    const k = e.key.toLowerCase()
+    if (k === 'b') {
+      e.preventDefault()
+      wrapSel('**', '**', 'bold')
+    } else if (k === 'i') {
+      e.preventDefault()
+      wrapSel('_', '_', 'italic')
+    } else if (k === 'k') {
+      e.preventDefault()
+      wrapSel('[', '](https://)', 'link text')
+    }
+  }
+
+  const TOOLS = [
+    { label: 'H2', title: 'Heading 2', run: () => prefixLine('## ') },
+    { label: 'H3', title: 'Heading 3', run: () => prefixLine('### ') },
+    { sep: true },
+    { label: 'B', title: 'Bold (Ctrl+B)', run: () => wrapSel('**', '**', 'bold') },
+    { label: 'I', title: 'Italic (Ctrl+I)', run: () => wrapSel('_', '_', 'italic') },
+    { label: 'S', title: 'Strikethrough', run: () => wrapSel('~~', '~~', 'struck') },
+    { label: '<>', title: 'Inline code', run: () => wrapSel('`', '`', 'code') },
+    { sep: true },
+    { label: '>', title: 'Blockquote', run: () => prefixLine('> ') },
+    { label: '•', title: 'Bulleted list', run: () => prefixLine('- ') },
+    { label: '1.', title: 'Numbered list', run: () => prefixLine('1. ') },
+    { sep: true },
+    { label: 'Link', title: 'Link (Ctrl+K)', run: () => wrapSel('[', '](https://)', 'link text') },
+    { label: 'Img', title: 'Image', run: () => wrapSel('![', '](https://image.png)', 'alt text') },
+    { sep: true },
+    { label: '{}', title: 'Code block', run: () => insertBlock('```js\n\n```', 7) },
+    { label: 'Tbl', title: 'Table', run: () => insertBlock('| Column | Column |\n| ------ | ------ |\n| Cell | Cell |') },
+    { label: 'HR', title: 'Horizontal rule', run: () => insertBlock('---') },
+  ]
+
+  const fm = parseFrontmatter(raw)
+  const isDraft = fm.data.draft === true || fm.data.draft === 'true'
+
+  function togglePublish() {
+    const { data, body } = parseFrontmatter(raw)
+    const nowDraft = data.draft === true || data.draft === 'true'
+    setRaw(buildFrontmatter({ ...data, draft: !nowDraft }, body))
+    setMsg({
+      err: false,
+      text: !nowDraft
+        ? 'Marked as draft — press Save to apply.'
+        : 'Ready to publish — press Save to apply.',
+    })
+  }
 
   async function login(e) {
     e.preventDefault()
@@ -260,14 +370,75 @@ export default function Admin() {
 
         {selected && (
           <div className="admin-editor">
-            <p className="mono">{selected}</p>
-            <textarea
-              className="body-input"
-              value={raw}
-              onChange={(e) => setRaw(e.target.value)}
-              spellCheck={false}
-            />
+            <div className="editor-head">
+              <p className="mono">{selected}</p>
+              {isDraft ? (
+                <span className="draft-chip">
+                  Draft — hidden on site
+                  <button type="button" onClick={togglePublish}>
+                    Publish
+                  </button>
+                </span>
+              ) : (
+                <span className="draft-chip live">
+                  Live
+                  <button type="button" onClick={togglePublish}>
+                    Unpublish
+                  </button>
+                </span>
+              )}
+            </div>
+            <div className="md-toolbar" role="toolbar" aria-label="Markdown tools">
+              {TOOLS.map((t, i) =>
+                t.sep ? (
+                  <span key={`sep-${i}`} className="md-sep" aria-hidden />
+                ) : (
+                  <button
+                    key={t.label}
+                    type="button"
+                    className="md-tool"
+                    title={t.title}
+                    onClick={t.run}
+                  >
+                    {t.label}
+                  </button>
+                )
+              )}
+              <div className="md-modes">
+                {['edit', 'split', 'preview'].map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    className={`md-mode ${mode === m ? 'active' : ''}`}
+                    onClick={() => setMode(m)}
+                  >
+                    {m[0].toUpperCase() + m.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className={`editor-panes ${mode}`}>
+              <textarea
+                ref={taRef}
+                className="body-input"
+                value={raw}
+                onChange={(e) => setRaw(e.target.value)}
+                onKeyDown={onEditorKeyDown}
+                spellCheck={false}
+                aria-label="Markdown source"
+              />
+              {mode !== 'edit' && (
+                <div className="admin-preview prose">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {parseFrontmatter(raw).body || '_Empty document — start writing._'}
+                  </ReactMarkdown>
+                </div>
+              )}
+            </div>
             <div className="admin-actions">
+              <span className="mono editor-status">
+                {raw.trim() ? raw.trim().split(/\s+/).length : 0} words · {raw.length} chars
+              </span>
               <button className="btn primary" onClick={save} disabled={busy}>
                 {busy ? 'Saving…' : 'Save'}
               </button>

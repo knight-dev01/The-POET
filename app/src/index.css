@@ -598,7 +598,35 @@ html[data-theme="light"] .form-msg.err{color:#8f3a2c}
 .admin-list button:hover,.admin-list button.active{border-color:var(--accent);color:var(--accent)}
 .admin-editor{margin-top:1.4rem;display:flex;flex-direction:column;gap:1rem}
 .admin-editor textarea.body-input{min-height:320px;font-family:var(--mono);font-size:.84rem;line-height:1.6}
-.admin-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.admin-actions{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center}
+
+/* markdown toolbar + panes */
+.md-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;padding:.45rem;border:1px solid var(--line);border-radius:var(--r-md);background:var(--glass);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.md-tool,.md-mode{background:transparent;border:1px solid transparent;border-radius:6px;color:var(--text);cursor:pointer;font-family:var(--mono);font-size:.76rem;padding:.34rem .52rem;line-height:1;transition:all .15s ease}
+.md-tool:hover,.md-mode:hover{color:var(--accent);border-color:var(--accent)}
+.md-tool:active{transform:translateY(1px)}
+.md-sep{width:1px;height:1.15rem;background:var(--line);margin:0 .3rem;flex-shrink:0}
+.md-modes{margin-left:auto;display:flex;gap:.2rem;padding-left:.5rem}
+.md-mode.active{color:var(--accent);border-color:var(--accent);background:var(--bg2)}
+.editor-panes{display:flex;gap:1rem;align-items:stretch}
+.editor-panes textarea{flex:1.05;min-width:0;min-height:360px}
+.editor-panes.preview textarea{display:none}
+.admin-preview{flex:1;min-width:0;min-height:360px;max-height:70vh;overflow-y:auto;border:1px solid var(--line);border-radius:var(--r-md);padding:1rem 1.2rem;background:var(--bg2)}
+.admin-preview.prose{max-width:none}
+.editor-status{color:var(--muted);font-size:.76rem;margin-right:auto}
+.editor-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.editor-head p{margin:0;word-break:break-all}
+.draft-chip{display:inline-flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;padding:.28rem .55rem;border:1px solid #c9a227;border-radius:999px;color:#c9a227;white-space:nowrap}
+.draft-chip.live{border-color:var(--accent);color:var(--accent)}
+.draft-chip button{background:transparent;border:1px solid currentColor;border-radius:999px;color:inherit;cursor:pointer;font-family:var(--mono);font-size:.66rem;letter-spacing:.08em;text-transform:uppercase;padding:.16rem .5rem;transition:all .15s ease}
+.draft-chip button:hover{opacity:.7}
+html[data-theme="light"] .draft-chip{border-color:#9a7b0a;color:#7a6208}
+html[data-theme="light"] .draft-chip.live{border-color:var(--accent);color:var(--accent)}
+@media(max-width:760px){
+  .editor-panes{flex-direction:column}
+  .editor-panes.preview textarea{display:block;order:2}
+  .md-modes{margin-left:0;padding-left:0}
+}
 
 /* ---------- ANIMATIONS ---------- */
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
