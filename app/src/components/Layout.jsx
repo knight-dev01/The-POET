@@ -32,6 +32,9 @@ export default function Layout({ children }) {
           IG<span>.</span>
         </Link>
         <nav>
+          <NavLink to="/" end>
+            Home
+          </NavLink>
           <NavLink to="/blog">Stories</NavLink>
           <NavLink to="/projects">Work</NavLink>
           <NavLink to="/topics">Topics</NavLink>
@@ -39,6 +42,7 @@ export default function Layout({ children }) {
           <NavLink to="/cv">CV</NavLink>
           <NavLink to="/about">About</NavLink>
         </nav>
+        <ThemeToggle />
       </header>
       <main>{children}</main>
       <footer className="site-footer">
@@ -60,5 +64,24 @@ export default function Layout({ children }) {
         </div>
       </footer>
     </>
+  )
+}
+
+function ThemeToggle() {
+  return (
+    <button
+      className="theme-toggle mono"
+      aria-label="Toggle theme"
+      onClick={() => {
+        const root = document.documentElement
+        const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light'
+        root.setAttribute('data-theme', next)
+        try {
+          localStorage.setItem('poet:theme', next)
+        } catch {}
+      }}
+    >
+      ◐
+    </button>
   )
 }
