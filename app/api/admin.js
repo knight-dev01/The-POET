@@ -127,10 +127,11 @@ export default async function handler(req, res) {
 
     return fail(res, 405, 'Method not allowed')
   } catch (e) {
+    const msg = e?.message || String(e)
     const hint =
-      e?.name === 'BlobAccessError'
-        ? 'Blob storage not connected — create a Blob store in Vercel (Storage → Create Blob).'
-        : e.message || 'Server error'
+      e?.name === 'BlobAccessError' || /token|credential|blob store/i.test(msg)
+        ? 'Blob storage problem — attach a Blob store to this project in Vercel (Storage → Create Blob), then redeploy.'
+        : `${e?.name || 'Error'}: ${msg}`
     return fail(res, 500, hint)
   }
 }

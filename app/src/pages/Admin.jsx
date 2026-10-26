@@ -55,7 +55,10 @@ export default function Admin() {
     setMsg(null)
     try {
       const r = await fetch(`${API}?action=list&collection=blog`, { headers: { Authorization: `Bearer ${password}` } })
-      if (!r.ok) throw new Error('Wrong password')
+      if (!r.ok) {
+        const d = await r.json().catch(() => ({}))
+        throw new Error(d.error || `Login failed (HTTP ${r.status})`)
+      }
       sessionStorage.setItem('poet:admin', password)
       setSession(password)
       setPassword('')
