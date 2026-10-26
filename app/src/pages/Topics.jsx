@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import SEO from '../components/SEO'
-import { getAllTopics, getPosts } from '../lib/content'
+import { getAllTopics, getPosts, searchPosts } from '../lib/content'
 
 export default function Topics() {
   const [params] = useSearchParams()
@@ -16,16 +16,7 @@ export default function Topics() {
     return topics.filter((t) => t.label.toLowerCase().includes(s))
   }, [topics, q])
 
-  const matchedPosts = useMemo(() => {
-    if (!q.trim()) return []
-    const s = q.toLowerCase()
-    return posts.filter(
-      (p) =>
-        p.title.toLowerCase().includes(s) ||
-        p.keywords.some((k) => k.toLowerCase().includes(s)) ||
-        p.topics.some((t) => t.toLowerCase().includes(s))
-    )
-  }, [posts, q])
+  const matchedPosts = useMemo(() => searchPosts(q, posts), [posts, q])
 
   return (
     <>
@@ -64,6 +55,9 @@ export default function Topics() {
                 </li>
               ))}
             </ul>
+            <p className="more-link">
+              <Link to={`/blog?q=${encodeURIComponent(q)}`}>All matching posts →</Link>
+            </p>
           </>
         )}
       </section>

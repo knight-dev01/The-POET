@@ -151,6 +151,18 @@ export function getAllTopics() {
   return [...map.values()].sort((a, b) => b.count - a.count || a.label.localeCompare(b.label))
 }
 
+export function searchPosts(q, posts = getPosts()) {
+  const s = String(q || '').trim().toLowerCase()
+  if (!s) return posts
+  return posts.filter(
+    (p) =>
+      p.title.toLowerCase().includes(s) ||
+      (p.description || '').toLowerCase().includes(s) ||
+      p.topics.some((t) => t.toLowerCase().includes(s)) ||
+      p.keywords.some((k) => k.toLowerCase().includes(s))
+  )
+}
+
 export function slugify(str) {
   return String(str)
     .toLowerCase()

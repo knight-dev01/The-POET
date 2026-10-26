@@ -114,7 +114,12 @@ export default function Admin() {
       })
       const d = await r.json()
       if (d.error) throw new Error(d.error)
-      setMsg({ err: false, text: 'Saved to GitHub. Vercel will redeploy.' })
+      setMsg({
+        err: false,
+        text: d.deployed
+          ? 'Saved. Redeploying — the site updates in about a minute.'
+          : 'Saved. Will publish on the next deploy (set DEPLOY_HOOK to auto-redeploy).',
+      })
     } catch (err) {
       setMsg({ err: true, text: err.message })
     }
@@ -261,7 +266,7 @@ export default function Admin() {
             />
             <div className="admin-actions">
               <button className="btn primary" onClick={save} disabled={busy}>
-                {busy ? 'Saving…' : 'Save to GitHub'}
+                {busy ? 'Saving…' : 'Save'}
               </button>
               <button className="btn" onClick={remove} disabled={busy}>
                 Delete file

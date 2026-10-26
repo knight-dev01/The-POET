@@ -5,15 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/generate-seo.mjs",
+    "sync": "node scripts/sync-content.mjs",
+    "build": "node scripts/sync-content.mjs && vite build && node scripts/generate-seo.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@vercel/blob": "^2.8.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.28.0",
     "react-helmet-async": "^2.0.5",
     "react-markdown": "^9.0.1",
+    "react-router-dom": "^6.28.0",
     "remark-gfm": "^4.0.0"
   },
   "devDependencies": {

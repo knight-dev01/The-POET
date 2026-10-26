@@ -16,3 +16,15 @@ export const SITE = {
   tagline:
     'AI-native backend engineer building production APIs, AI systems and full-stack products — a consolidation of my work from across the web.',
 }
+
+export const NAV = [
+  { to: '/', label: 'Home', end: true },
+  { to: '/blog', label: 'Stories' },
+  { to: '/projects', label: 'Work' },
+  { to: '/topics', label: 'Topics' },
+  { to: '/library', label: 'Library' },
+  { to: '/cv', label: 'CV' },
+  { to: '/about', label: 'About' },
+]
+
+export const SITEMAP_PAGES = [...NAV, { to: '/contact', label: 'Contact' }]

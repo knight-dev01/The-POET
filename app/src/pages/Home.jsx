@@ -72,17 +72,6 @@ export default function Home() {
               CGPA
             </li>
           </ul>
-          <p className="avail">
-            <span className="dot" aria-hidden /> Available for backend &amp; AI engineering roles
-          </p>
-          <div className="cta-row">
-            <Link className="btn primary" to="/cv">
-              View CV
-            </Link>
-            <Link className="btn" to="/contact">
-              Get in touch
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -132,6 +121,9 @@ export default function Home() {
             </Link>
           ))}
         </div>
+        <p className="more-link">
+          <Link to="/topics">All topics →</Link>
+        </p>
       </section>
     </>
   )

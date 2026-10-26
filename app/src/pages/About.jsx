@@ -1,5 +1,6 @@
 import SEO from '../components/SEO'
 import { SITE } from '../lib/site'
+import { CV } from '../lib/cv'
 
 export default function About() {
   return (
@@ -21,10 +22,7 @@ export default function About() {
             This site is a consolidation of my work from across the web — projects,
             articles and a growing knowledge hub of ideas I reference and teach.
           </p>
-          <p>
-            Replace this bio with your own story: your background, what you focus on,
-            notable work, and what you're looking for next.
-          </p>
+          <p>{CV.summary}</p>
         </div>
         <ul className="checklist mono">
           <li>Software development</li>

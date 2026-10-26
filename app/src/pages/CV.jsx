@@ -194,9 +194,6 @@ export default function CV() {
               <a className="topic-chip" href={CV_DATA.linkedin} target="_blank" rel="noreferrer">
                 LinkedIn
               </a>
-              <Link className="topic-chip no-print" to="/sitemap">
-                Sitemap
-              </Link>
             </div>
           </div>
         </div>

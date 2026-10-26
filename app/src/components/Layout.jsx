@@ -1,5 +1,5 @@
 import { NavLink, Link } from 'react-router-dom'
-import { SITE } from '../lib/site'
+import { SITE, NAV } from '../lib/site'
 
 function Ornament() {
   return (
@@ -32,15 +32,11 @@ export default function Layout({ children }) {
           IG<span>.</span>
         </Link>
         <nav>
-          <NavLink to="/" end>
-            Home
-          </NavLink>
-          <NavLink to="/blog">Stories</NavLink>
-          <NavLink to="/projects">Work</NavLink>
-          <NavLink to="/topics">Topics</NavLink>
-          <NavLink to="/library">Library</NavLink>
-          <NavLink to="/cv">CV</NavLink>
-          <NavLink to="/about">About</NavLink>
+          {NAV.map((n) => (
+            <NavLink key={n.to} to={n.to} end={n.end}>
+              {n.label}
+            </NavLink>
+          ))}
         </nav>
         <ThemeToggle />
       </header>

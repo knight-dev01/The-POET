@@ -18,7 +18,7 @@ export default function Library() {
           <>
             <p className="sub">Nothing saved yet. Tap the star on any story to keep it here.</p>
             <div className="cta-row">
-              <Link className="btn primary" to="/">
+              <Link className="btn primary" to="/blog">
                 Browse stories
               </Link>
             </div>

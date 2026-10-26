@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import SEO from '../components/SEO'
 import { getPosts, getProjects, getAllTopics } from '../lib/content'
+import { SITEMAP_PAGES } from '../lib/site'
 
 export default function Sitemap() {
   const posts = getPosts()
@@ -17,13 +18,11 @@ export default function Sitemap() {
           <div>
             <h3>Pages</h3>
             <ul className="post-list">
-              <li><Link to="/">Home</Link></li>
-              <li><Link to="/blog">Blog</Link></li>
-              <li><Link to="/projects">Projects</Link></li>
-              <li><Link to="/topics">Topics</Link></li>
-              <li><Link to="/about">About</Link></li>
-              <li><Link to="/cv">CV</Link></li>
-              <li><Link to="/contact">Contact</Link></li>
+              {SITEMAP_PAGES.map((p) => (
+                <li key={p.to}>
+                  <Link to={p.to}>{p.label}</Link>
+                </li>
+              ))}
             </ul>
           </div>
           <div>

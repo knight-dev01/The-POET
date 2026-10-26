@@ -1,7 +1,8 @@
-const OWNER = 'knight-dev01'
-const REPO = 'The-POET'
-const BRANCH = 'main'
-const BASE = `https://api.github.com/repos/${OWNER}/${REPO}`
+import { put, list, del } from '@vercel/blob'
+
+const BLOG = 'content/blog/'
+const PROJ = 'content/projects/'
+const MANIFEST = 'content/deleted.json'
 
 function ok(res, data) {
   res.status(200).json(data)
@@ -10,30 +11,47 @@ function fail(res, code, msg) {
   res.status(code).json({ error: msg })
 }
 
-async function gh(path, opts = {}) {
-  const token = process.env.GITHUB_TOKEN
-  if (!token) throw new Error('GITHUB_TOKEN not set')
-  const r = await fetch(`${BASE}${path}`, {
-    ...opts,
-    headers: {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-      ...(opts.body ? { 'Content-Type': 'application/json' } : {}),
-      ...(opts.headers || {}),
-    },
-  })
-  if (!r.ok) {
-    const t = await r.text()
-    throw new Error(`GitHub ${r.status}: ${t.slice(0, 200)}`)
-  }
-  return r.json()
-}
-
 function authed(req) {
   const pass = process.env.ADMIN_PASSWORD || 'admin'
   const h = req.headers.authorization || ''
   return h === `Bearer ${pass}`
+}
+
+const prefixFor = (col) => (col === 'projects' ? PROJ : BLOG)
+const toBlob = (p) => String(p).replace(/^\/?app\//, '')
+const toApp = (p) => 'app/' + p
+const validPath = (p) => /^app\/content\/(blog|projects)\/[^/]+\.md$/.test(String(p))
+
+async function readManifest() {
+  const r = await list({ prefix: MANIFEST, limit: 5 })
+  const b = r.blobs.find((x) => x.pathname === MANIFEST)
+  if (!b) return []
+  try {
+    const res = await fetch(b.url)
+    return res.ok ? await res.json() : []
+  } catch {
+    return []
+  }
+}
+
+async function writeManifest(paths) {
+  await put(MANIFEST, JSON.stringify(paths, null, 2), {
+    access: 'public',
+    allowOverwrite: true,
+    addRandomSuffix: false,
+    cacheControlMaxAge: 60,
+  })
+}
+
+async function triggerDeploy() {
+  const hook = process.env.DEPLOY_HOOK
+  if (!hook) return false
+  try {
+    await fetch(hook, { method: 'POST' })
+    return true
+  } catch {
+    return false
+  }
 }
 
 export default async function handler(req, res) {
@@ -47,55 +65,61 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const url = new URL(req.url, 'http://x')
       const action = url.searchParams.get('action')
+
       if (action === 'list') {
         const col = url.searchParams.get('collection') || 'blog'
-        const folder = col === 'projects' ? 'app/content/projects' : 'app/content/blog'
-        const data = await gh(`/contents/${folder}?ref=${BRANCH}`)
-        const files = (Array.isArray(data) ? data : [])
-          .filter((f) => f.name.endsWith('.md'))
-          .map((f) => ({ name: f.name, path: f.path }))
+        const r = await list({ prefix: prefixFor(col), limit: 1000 })
+        const files = r.blobs
+          .filter((b) => b.pathname.endsWith('.md'))
+          .map((b) => ({ name: b.pathname.split('/').pop(), path: toApp(b.pathname) }))
+          .sort((a, b) => a.name.localeCompare(b.name))
         return ok(res, { files })
       }
+
       if (action === 'read') {
         const p = url.searchParams.get('path')
-        if (!p) return fail(res, 400, 'path required')
-        const data = await gh(`/contents/${p}?ref=${BRANCH}`)
-        const content = Buffer.from(data.content, 'base64').toString('utf8')
-        return ok(res, { content, sha: data.sha })
+        if (!p || !validPath(p)) return fail(res, 400, 'Invalid path')
+        const blobPath = toBlob(p)
+        const r = await list({ prefix: blobPath, limit: 1000 })
+        const b = r.blobs.find((x) => x.pathname === blobPath)
+        if (!b) return fail(res, 404, 'File not found in storage')
+        const rr = await fetch(b.url)
+        if (!rr.ok) return fail(res, 500, `Could not read ${blobPath}`)
+        return ok(res, { content: await rr.text() })
       }
+
       return fail(res, 400, 'Unknown action')
     }
 
     if (req.method === 'POST') {
       let body = ''
       for await (const chunk of req) body += chunk
-      const { action, path, content, message } = JSON.parse(body || '{}')
+      const { action, path, content } = JSON.parse(body || '{}')
 
       if (action === 'write') {
-        if (!path || content == null) return fail(res, 400, 'path and content required')
-        let sha
-        try {
-          const existing = await gh(`/contents/${path}?ref=${BRANCH}`)
-          sha = existing.sha
-        } catch {}
-        const payload = {
-          message: message || `admin: update ${path}`,
-          content: Buffer.from(content, 'utf8').toString('base64'),
-          branch: BRANCH,
-          ...(sha ? { sha } : {}),
-        }
-        await gh(`/contents/${path}`, { method: 'PUT', body: JSON.stringify(payload) })
-        return ok(res, { ok: true })
+        if (!path || !validPath(path)) return fail(res, 400, 'Invalid path')
+        if (content == null) return fail(res, 400, 'content required')
+        const blobPath = toBlob(path)
+        await put(blobPath, content, {
+          access: 'public',
+          allowOverwrite: true,
+          addRandomSuffix: false,
+          cacheControlMaxAge: 60,
+        })
+        const manifest = await readManifest()
+        if (manifest.includes(blobPath)) await writeManifest(manifest.filter((x) => x !== blobPath))
+        const deployed = await triggerDeploy()
+        return ok(res, { ok: true, deployed })
       }
 
       if (action === 'delete') {
-        if (!path) return fail(res, 400, 'path required')
-        const existing = await gh(`/contents/${path}?ref=${BRANCH}`)
-        await gh(`/contents/${path}`, {
-          method: 'DELETE',
-          body: JSON.stringify({ message: `admin: delete ${path}`, sha: existing.sha, branch: BRANCH }),
-        })
-        return ok(res, { ok: true })
+        if (!path || !validPath(path)) return fail(res, 400, 'Invalid path')
+        const blobPath = toBlob(path)
+        await del(blobPath)
+        const manifest = await readManifest()
+        if (!manifest.includes(blobPath)) await writeManifest([...manifest, blobPath])
+        const deployed = await triggerDeploy()
+        return ok(res, { ok: true, deployed })
       }
 
       return fail(res, 400, 'Unknown action')
@@ -103,6 +127,10 @@ export default async function handler(req, res) {
 
     return fail(res, 405, 'Method not allowed')
   } catch (e) {
-    return fail(res, 500, e.message || 'Server error')
+    const hint =
+      e?.name === 'BlobAccessError'
+        ? 'Blob storage not connected — create a Blob store in Vercel (Storage → Create Blob).'
+        : e.message || 'Server error'
+    return fail(res, 500, hint)
   }
 }

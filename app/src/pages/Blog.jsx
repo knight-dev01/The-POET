@@ -1,23 +1,15 @@
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import SEO from '../components/SEO'
 import PostCard from '../components/PostCard'
-import { getPosts } from '../lib/content'
+import { getPosts, searchPosts } from '../lib/content'
 
 export default function Blog() {
   const posts = useMemo(() => getPosts(), [])
-  const [q, setQ] = useState('')
+  const [params] = useSearchParams()
+  const [q, setQ] = useState(params.get('q') || '')
 
-  const filtered = useMemo(() => {
-    if (!q.trim()) return posts
-    const s = q.toLowerCase()
-    return posts.filter(
-      (p) =>
-        p.title.toLowerCase().includes(s) ||
-        p.description.toLowerCase().includes(s) ||
-        p.topics.some((t) => t.toLowerCase().includes(s)) ||
-        p.keywords.some((k) => k.toLowerCase().includes(s))
-    )
-  }, [posts, q])
+  const filtered = useMemo(() => searchPosts(q, posts), [posts, q])
 
   return (
     <>
