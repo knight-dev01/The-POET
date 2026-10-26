@@ -1,8 +1,9 @@
-import { put, list, del } from '@vercel/blob'
+import { put, list, del, get } from '@vercel/blob'
 
 const BLOG = 'content/blog/'
 const PROJ = 'content/projects/'
 const MANIFEST = 'content/deleted.json'
+const ACCESS = 'private'
 
 function ok(res, data) {
   res.status(200).json(data)
@@ -22,13 +23,21 @@ const toBlob = (p) => String(p).replace(/^\/?app\//, '')
 const toApp = (p) => 'app/' + p
 const validPath = (p) => /^app\/content\/(blog|projects)\/[^/]+\.md$/.test(String(p))
 
-async function readManifest() {
-  const r = await list({ prefix: MANIFEST, limit: 5 })
-  const b = r.blobs.find((x) => x.pathname === MANIFEST)
-  if (!b) return []
+async function readBlobText(pathname) {
   try {
-    const res = await fetch(b.url)
-    return res.ok ? await res.json() : []
+    const r = await get(pathname, { access: ACCESS, useCache: false })
+    if (!r || r.statusCode !== 200) return null
+    return await new Response(r.stream).text()
+  } catch {
+    return null
+  }
+}
+
+async function readManifest() {
+  const text = await readBlobText(MANIFEST)
+  if (!text) return []
+  try {
+    return JSON.parse(text)
   } catch {
     return []
   }
@@ -36,7 +45,7 @@ async function readManifest() {
 
 async function writeManifest(paths) {
   await put(MANIFEST, JSON.stringify(paths, null, 2), {
-    access: 'public',
+    access: ACCESS,
     allowOverwrite: true,
     addRandomSuffix: false,
     cacheControlMaxAge: 60,
@@ -79,13 +88,9 @@ export default async function handler(req, res) {
       if (action === 'read') {
         const p = url.searchParams.get('path')
         if (!p || !validPath(p)) return fail(res, 400, 'Invalid path')
-        const blobPath = toBlob(p)
-        const r = await list({ prefix: blobPath, limit: 1000 })
-        const b = r.blobs.find((x) => x.pathname === blobPath)
-        if (!b) return fail(res, 404, 'File not found in storage')
-        const rr = await fetch(b.url)
-        if (!rr.ok) return fail(res, 500, `Could not read ${blobPath}`)
-        return ok(res, { content: await rr.text() })
+        const content = await readBlobText(toBlob(p))
+        if (content == null) return fail(res, 404, 'File not found in storage')
+        return ok(res, { content })
       }
 
       return fail(res, 400, 'Unknown action')
@@ -101,7 +106,7 @@ export default async function handler(req, res) {
         if (content == null) return fail(res, 400, 'content required')
         const blobPath = toBlob(path)
         await put(blobPath, content, {
-          access: 'public',
+          access: ACCESS,
           allowOverwrite: true,
           addRandomSuffix: false,
           cacheControlMaxAge: 60,

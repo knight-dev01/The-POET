@@ -1,4 +1,4 @@
-import { list, put } from '@vercel/blob'
+import { list, put, get } from '@vercel/blob'
 import { readFile, writeFile, readdir, unlink } from 'node:fs/promises'
 import path from 'node:path'
 
@@ -8,16 +8,21 @@ const ROOTS = [
 ]
 const SEED_FLAG = 'content/.seeded'
 const MANIFEST = 'content/deleted.json'
+const ACCESS = 'private'
 
 if (!process.env.BLOB_READ_WRITE_TOKEN && !(process.env.VERCEL_OIDC_TOKEN && process.env.BLOB_STORE_ID)) {
   console.log('[sync] no blob credentials — keeping local content as-is')
   process.exit(0)
 }
 
-const fetchText = async (url) => {
-  const r = await fetch(url)
-  if (!r.ok) throw new Error(`blob fetch ${r.status}`)
-  return r.text()
+async function readBlobText(pathname) {
+  try {
+    const r = await get(pathname, { access: ACCESS, useCache: false })
+    if (!r || r.statusCode !== 200) return null
+    return await new Response(r.stream).text()
+  } catch {
+    return null
+  }
 }
 
 async function listAll(prefix) {
@@ -32,7 +37,7 @@ async function listAll(prefix) {
 }
 
 const index = (blobs) => new Map(blobs.map((b) => [b.pathname, b]))
-const putOpts = { access: 'public', addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 60 }
+const putOpts = { access: ACCESS, addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 60 }
 
 let blobs = await listAll('content/')
 let byPath = index(blobs)
@@ -62,14 +67,19 @@ for (const b of blobs) {
   if (!root) continue
   const name = b.pathname.slice(root.prefix.length)
   if (!name || name.includes('/')) continue
-  const text = await fetchText(b.url)
+  const text = await readBlobText(b.pathname)
+  if (text == null) {
+    console.log(`[sync] WARNING: could not read ${b.pathname} — skipped`)
+    continue
+  }
   await writeFile(path.join(root.dir, name), text, 'utf8')
   written++
 }
 console.log(`[sync] wrote ${written} file(s) from blob store`)
 
 if (byPath.has(MANIFEST)) {
-  const deleted = JSON.parse(await fetchText(byPath.get(MANIFEST).url))
+  const raw = await readBlobText(MANIFEST)
+  const deleted = raw ? JSON.parse(raw) : []
   for (const p of deleted) {
     const local = p.replace(/^\/?app\//, '')
     await unlink(local).catch(() => {})
